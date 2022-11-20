@@ -1,0 +1,8 @@
+<!--pages/weather/weather.wxml-->
+<van-cell-group>
+  <van-cell title="城市名称" value="{{city}}" size="large" />
+<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+</van-cell-group>
+
+
+
