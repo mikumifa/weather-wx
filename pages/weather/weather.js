@@ -5,11 +5,14 @@ var qqmapsdk;
 Page({
   data: {
     userInfo: {},
+    hasUserInfo: false,
+    canIUseGetUserProfile: true,
     logged: false,
     takeSession: false,
     requestResult: '',
   },
-  onLoad: function() {
+  
+  onLoad() {
     // 实例化API核心类
     qqmapsdk = new QQMapWX({
       key: 'TNMBZ-ZTBWD-QTG4L-PS2WR-UK2DS-WKBP2'
@@ -19,7 +22,7 @@ Page({
       success: function(res) {
         console.log(res);
         wx.request({
-          url: 'http://localhost:12346/get.do',
+          url: app.serverUrl+'/get.do',
           data: {
             province:res.result.ad_info.province,
             city: res.result.ad_info.city,

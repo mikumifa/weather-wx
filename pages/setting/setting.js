@@ -1,20 +1,109 @@
 // pages/setting/setting.js
+import Notify from '@vant/weapp/notify/notify';
+const app=getApp()
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    userInfo: {},
+    hasUserInfo: false,
+    canIUseGetUserProfile: true,
   },
+  formatDate(date) {
+    var date = new Date(date);
+    var YY = date.getFullYear() + '-';
+    var MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+    var DD = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+    return YY + MM + DD;
+  },
+  Login(e){
+    var that=this
+    if(that.data.userInfo.lastSignTime.substring(0,10)==this.formatDate(new Date))
+        {console.log("明天再去打卡吧")    
+        Notify({ type: 'warning', message: '          明天再去打卡吧',color:'#000' ,background:'#FF0000'});
 
+  }
+       else wx.request({
+          url: app.sqlUrl +"/SignInByopenId/" +that.data.openid,
+          method: "POST",
+          success() {
+            console.log("打卡一次！！")
+                wx.request({
+                  url: app.sqlUrl +"/GetUserSignInfoByopenId/" +that.data.openid,
+                  method: "GET",
+                  success(re2) {
+                    console.log(re2)
+                    that.setData({
+                      'userInfo.continuitySignDays': re2.data.continuitySignDays,
+                      'userInfo.lastSignTime': re2.data.lastSignTime
+                    })
+                  }
+                })
+                //
+          }
+        })
+  },
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-
+    if (wx.getUserProfile) {
+      this.setData({
+        canIUseGetUserProfile: true
+      })
+    }
   },
-
+  getUserInfo(e) {
+    this.setData({
+      userInfo: e.detail.userInfo,
+      hasUserInfo: true
+    })
+  },
+  getUserProfile(e) {
+      wx.getUserProfile({
+        desc: '用于完善会员资料', 
+        success: (res) => {
+          wx.setStorageSync('message', res.userInfo)
+          this.setData({
+            userInfo: res.userInfo,
+            hasUserInfo: true
+          })
+          console.log("!!!!!!!!!!!!!")
+          var that =this;
+          wx.login({
+            success: function (res) {
+              var code = res.code;
+              wx.request({
+                url: app.serverUrl +"/wxLogin/" + code,
+                method: "POST",
+                success: function (result) {
+                  //
+                  that.setData({
+                    openid: result.data.openid,
+                    session_key: result.data.session_key
+                  })
+                  wx.request({
+                    url: app.sqlUrl +"/GetUserSignInfoByopenId/" +that.data.openid,
+                    method: "GET",
+                    success(re2) {
+                      console.log(re2)
+                      that.setData({
+                        'userInfo.continuitySignDays': re2.data.continuitySignDays,
+                        'userInfo.lastSignTime': re2.data.lastSignTime
+                        //continuitySignDays: re2.data.continuitySignDays,
+                        //lastSignTime: re2.data.lastSignTime
+                      })
+                      console.log(that.data)
+                    }
+    
+                  })
+                  //
+                }
+              })
+            }
+          })
+        }
+      })
+    
+    },
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
