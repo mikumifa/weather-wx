@@ -6,12 +6,17 @@ Component({
 				icon: 'home-o',
 				text: '天气',
 				url: '/pages/weather/weather'
-			},
+      },
+      {
+        icon:'location-o',
+        text: '城市',
+        url:  '/pages/city/city'  
+      },
 			{
 				icon: 'setting-o',
 				text: '设置',
 				url: '/pages/setting/setting'
-			}
+      }
 		]
 	},
 

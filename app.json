@@ -1,33 +1,43 @@
 {
- 
-
-	"tabBar": {
-		"custom": true,
-		"color": "#000000",
-		"selectedColor": "#000000",
-		"backgroundColor": "#000000",
-		"list": [
+  "tabBar": {
+    "custom": true,
+    "color": "#000000",
+    "selectedColor": "#000000",
+    "backgroundColor": "#000000",
+    "list": [
       {
-				"pagePath": "pages/weather/weather"
-			},
-			{
-				"pagePath": "pages/setting/setting"
-			}
-		]
-	},
-	"pages": [
+        "pagePath": "pages/weather/weather"
+      },
+      {
+        "pagePath": "pages/city/city"
+      },
+      {
+        "pagePath": "pages/setting/setting"
+      }
+    ]
+  },
+  "pages": [
     "pages/weather/weather",
-		"pages/setting/setting"
-	],
-	"window": {
-		"backgroundTextStyle": "light",
-		"navigationBarBackgroundColor": "#fff",
-		"navigationBarTitleText": "WeChat",
-		"navigationBarTextStyle": "black"
-	},
+    "pages/city/city",
+    "pages/setting/setting"
+
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "WeChat",
+    "navigationBarTextStyle": "black"
+  },
   "permission": {
     "scope.userLocation": {
       "desc": "你的位置信息将用于小程序位置接口的效果展示"
     }
-  }
+  },
+  
+"plugins": {
+  "citySelector": {
+  "version": "1.0.1",
+  "provider": "wx63ffb7b7894e99ae"
+}
+}
 }

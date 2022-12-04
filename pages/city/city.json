@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "selector-component": "plugin://citySelector/selector-component",
+    "van-button": "@vant/weapp/button/index",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-cell-group": "@vant/weapp/cell-group/index",
+    "van-image": "@vant/weapp/image/index",
+    "van-dialog": "@vant/weapp/dialog/index",
+    "van-notify": "@vant/weapp/notify/index"
+  }
+}

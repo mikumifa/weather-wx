@@ -1,5 +1,18 @@
-<!--pages/weather/weather.wxml-->
+<van-tabs active="{{ active }}" bind:change="ChangeIndex" bind:click="changeNowCity">
+  <van-tab title="当地天气">
 <van-cell-group>
   <van-cell title="城市名称" value="{{city}}" size="large" />
 <van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
 </van-cell-group>
+  </van-tab>
+  <van-tab title="城市一天气">
+    <van-cell title="城市名称" value="{{city}}" size="large" />
+<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+</van-tab>
+  <van-tab title="城市二天气">  <van-cell title="城市名称" value="{{city}}" size="large" />
+<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+</van-tab>
+  <van-tab title="城市三天气">  <van-cell title="城市名称" value="{{city}}" size="large" />
+<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+</van-tab>
+</van-tabs>

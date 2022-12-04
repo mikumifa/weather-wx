@@ -1,0 +1,25 @@
+<!--setting.wxml-->
+<van-cell-group inset>
+  <van-cell  title="城市一" value="{{city_0.province}}{{city_0.city}}{{city_0.country}}" bind:click="onSelectCity_0"/>
+  <van-cell  title="城市二" value="{{city_1.province}}{{city_1.city}}{{city_1.country}}" bind:click="onSelectCity_1"/>
+  <van-cell  title="城市三" value="{{city_2.province}}{{city_2.city}}{{city_2.country}}" bind:click="onSelectCity_2"/>
+</van-cell-group>
+<selector-component
+  show="{{selectorVisible_0}}"
+  key="TNMBZ-ZTBWD-QTG4L-PS2WR-UK2DS-WKBP2"
+  referer="hlwjs"
+  bindselect="onSelectCity_0"
+></selector-component>
+<selector-component
+  show="{{selectorVisible_1}}"
+  key="TNMBZ-ZTBWD-QTG4L-PS2WR-UK2DS-WKBP2"
+  referer="hlwjs"
+
+  bindselect="onSelectCity_1"
+></selector-component><selector-component
+  show="{{selectorVisible_2}}"
+  key="TNMBZ-ZTBWD-QTG4L-PS2WR-UK2DS-WKBP2"
+  referer="hlwjs"
+
+  bindselect="onSelectCity_2"
+></selector-component>
