@@ -1,5 +1,6 @@
 // pages/weather/weather.js
 const app = getApp()
+let mythis = null;
 var QQMapWX = require('../../libs/qqmap-wx-jssdk.js');
 var qqmapsdk;
 Page({
@@ -9,14 +10,39 @@ Page({
     city:"",
     country:"",
     weather: "",
-    res: []
+    res: [],
+    location: '上海市',
+    hasRefresh: false,
+    nowBackGround: [100, 8],
+    nowTemperature: '0 ℃',
+    nowWind: '晴/东北风  微风',
+    nowAir: '50  优',
+    hourlyArr: [],
+    dailyForecast: [],
+    lifeStyle: [],
+    week: '',
+    time:{
+      YY:"",
+      MM:"",
+      DD:""
+   }
   },
+  formatDate(date) {
+   var date = new Date(date);
+   var YY = date.getFullYear() ;
+   var MM = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) ;
+   var DD = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+   this.setData({
+      'time.DD':DD,
+      'time.MM':MM,
+      'time.YY':YY
+   })
+ },
   loadWeather(){
         wx.request({
           url: app.serverUrl+'/get.do',
           data:app.globalData.nowCity,
           complete(getRes) {
-     
             var weather=getRes.data.data
             app.globalData.res[0]={
               province:app.globalData.nowCity.province,
@@ -71,32 +97,39 @@ Page({
            res: app.globalData.res
         })
       },
+
   ChangeIndex(event) {
+   var index=event.detail.index;
+   var res=app.globalData.res
+   this.loadWeather();
+   this.setData({
+     province:res[index].province,
+     city:res[index].city,
+     country:res[index].country,
+     weather:res[index].weather
+   })
     wx.showToast({
       title: `切换成功`,
       icon: 'none',
     });
     this.loadWeather();
-    var index=event.detail.index;
-    var res=app.globalData.res
-    console.log(res.length)
-    this.setData({
+    mythis.setData({
       province:res[index].province,
       city:res[index].city,
       country:res[index].country,
       weather:res[index].weather
     })
-    console.log(this.data)
+    this.onShow();
   },
   onLoad() {
     // 实例化API核心类
+    this.formatDate(new Date())
     qqmapsdk = new QQMapWX({
       key: 'TNMBZ-ZTBWD-QTG4L-PS2WR-UK2DS-WKBP2'
     })
     var that =this;
     qqmapsdk.reverseGeocoder({
       success: function(res) {
-        console.warn(app.globalData)
         var nowCity={
           province:res.result.ad_info.province,
             city: res.result.ad_info.city,
@@ -117,6 +150,16 @@ Page({
               country: res.result.ad_info.district,
               weather:weather
             })
+            that.setData({
+              country: that.data.city,
+            })
+            that.setData({
+               province:res.result.ad_info.province,
+              city: res.result.ad_info.city,
+              country: res.result.ad_info.district,
+              weather:weather
+            })
+            console.log(weather)
           }
         })
         wx.request({
@@ -164,7 +207,13 @@ Page({
       }
      })
      that.setData({
-       res: app.globalData.res
+       res: app.globalData.res,
      })
-}
+
+},
+ onShow: function () {
+   mythis = this;
+   this.setData({
+   })
+},
 })

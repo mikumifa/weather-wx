@@ -1,18 +1,685 @@
-<van-tabs active="{{ active }}" bind:change="ChangeIndex" bind:click="changeNowCity">
+<wxs module="m1">
+  var getDailyDate = function(str,date) {
+   var index=str.substring(11);
+    if (index == 0) {
+      return "今天";
+    } else {
+      return date.substring(5,10);
+    }
+  }
+  var windDirection = function(str) {
+    if (str.indexOf("东北风") != -1) {
+      return "eastnorth";
+    } else if (str.indexOf("东南风") != -1) {
+      return "eastsouth";
+    } else if (str.indexOf("西南风") != -1) {
+      return "westsouth";
+    } else if (str.indexOf("西北风") != -1) {
+      return "westnorth";
+    } else if (str.indexOf("东风") != -1) {
+      return "east";
+    } else if (str.indexOf("南") != -1) {
+      return "south";
+    } else if (str.indexOf("西") != -1) {
+      return "west";
+    } else if (str.indexOf("北") != -1) {
+      return "north";
+    } else {
+      return "north";
+    }
+  }
+  var nowBackImage = function(code, temp) {
+    if (code >= 100 && code <= 104) {
+      if (temp > 35) {
+        return "sun2";
+      } else {
+        return "sun";
+      }
+    } else if (code ==02||code==01) {
+      return "cloud";
+    } else if (code >= 03 && code <= 05) {
+      return "smog";
+    } else if (code >= 12 && code <= 18) {
+      return "snow";
+    } else if (code >= 06 && code <= 11) {
+      return "rain";
+    } else {
+      return "sun";
+    }
+  }
+  module.exports.getDailyDate = getDailyDate;
+  module.exports.windDirection = windDirection;
+  module.exports.nowBackImage = nowBackImage;
+</wxs>
+<van-tabs active="{{ active }}" bind:change="ChangeIndex">
   <van-tab title="当地天气">
-<van-cell-group>
-  <van-cell title="城市名称" value="{{city}}" size="large" />
-<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
-</van-cell-group>
+   <view class='backgroundView'>
+    <view class='content'>
+      <view class='topView'>
+        <image src='../img/{{m1.nowBackImage(weather.forecast_24h.weatherDay_0.day_weather_code, weather.forecast_24h.weatherDay_0.max_degree)}}.png' class='topImg' mode='aspectFill'></image>
+        <view class='location' bindtap='chooseLocation'>
+          <view>
+            <image class='locationImg'  src='../img/location.png' mode='aspectFit'></image>
+            <text >{{province}}{{city}}{{country}}</text>
+          </view>
+        </view>
+        <view class='nowTemp'>{{weather.forecast_24h.weatherDay_0.max_defree}}</view>
+        <view class='nowWind'>{{weather.forecast_24h.weatherDay_0.day_wind_direction}}</view>
+        <view class='air_now'>天气状况:{{weather.air.aqi_name}}</view>
+        <view class='week'>{{time.YY}}-{{time.MM}}-{{time.DD}}</view>
+        <view class='tips1'>{{weather.tips.tipsDetail.tips_0}}</view>
+        <view class='tips2'>{{weather.tips.tipsDetail.tips_1}}</view>
+        
+      </view>
+      <scroll-view class='hourly' scroll-x="true">
+        <block wx:for="{{weather.forecast_24h}}" wx:key="unique" style="display: block;">
+          <view class='oneHourly'>
+            <view class='oneHourlyFlex'>
+              <view class='hourlyDate'>{{m1.getDailyDate(index,item.time)}}</view> 
+              <image class='hourlyImg' src='http://mat1.gtimg.com/pingjs/ext2020/weather/pc/icon/weather/day/{{item.day_weather_code}}.png' mode='aspectFit'></image>
+              <view class='hourlyTmp'>{{item.min_degree}}~{{item.max_degree}}°C</view>
+              <view class='hourlyWind'>
+                <image src='../img/{{m1.windDirection(item.day_wind_direction)}}.png' mode='aspectFit'></image>
+                <text>{{item.day_wind_direction}}</text>
+                
+              </view>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+      <view class='dailyForecast'>
+        <block wx:for="{{dailyForecast}}" wx:key="unique" style="display: block;">
+          <view class='daily' style="flex-direction:row;">
+
+            <view class='dailyDate'>{{m1.getDailyDate(index,item.date)}}</view> 
+            <image class='dailyImg' src='../img/{{item.cond_code_d}}.png' mode='aspectFit'></image> 
+            <view class='dailyCond'>{{item.cond_txt_d}}</view>
+            <view class='dailyTmp'>{{item.tmp_min}}°~{{item.tmp_max}}°</view>
+          </view>
+        </block>
+      </view>
+      <!--穿衣提示 -->
+      <view class='lifeStyle'>
+        <view class='life'>
+          <image class='lifeImg' src='../img/cold.png' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.cold.info}}感冒</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/cloth.png' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.drying.info}}中暑</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/car.png' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.carwash.info}}洗车</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/umbrella.png' mode='aspectFit'></image>
+          <view class='lifeText'>紫外线{{weather.index.ultraviolet.info}}</view>
+        </view>
+      </view>
+      <view class='lifeStyle_2'>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/air.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.allergy.info}}过敏</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/comf.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.drying.info}}{{weather.index.drying.name}}</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/cw.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.sunglasses.info}}{{weather.index.sunglasses.name}}</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/drsg.svg' mode='aspectFit'></image>
+          <view class='lifeText'>紫外线{{weather.index.comfort.info}}{{weather.index.comfort.name}}</view>
+        </view>
+      </view>
+      <view class='lifeStyle_3'>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/flu.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.allergy.info}}{{weather.index.allergy.name}}</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/sport.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.sports.info}}{{weather.index.sports.name}}</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/trav.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.traffic.info}}{{weather.index.traffic.name}}</view>
+        </view>
+        <view class='life'>
+          <image class='lifeImg' src='../img/life/uv.svg' mode='aspectFit'></image>
+          <view class='lifeText'>{{weather.index.mood.info}}{{weather.index.mood.name}}</view>
+        </view>
+      </view>
+
+
+    <view class="details">
+      <view class="title">详情</view>
+      <view class="list">
+        <view class="item">
+          <view class="wrap">
+            <view class="column-l">
+              <view class="hd">风</view>
+              <view class="bd">{{weather.observe.wind_power}}级 </view>
+            </view>
+            <view class="column-r">
+              <image class="icon" src="../img/detail/windy.svg"></image>
+            </view>
+          </view>
+        </view>
+        <view class="item">
+          <view class="wrap">
+            <view class="column-l">
+              <view class="hd">体感温度</view>
+              <view class="bd">{{weather.observe.degree}}˚</view>
+            </view>
+            <view class="column-r">
+              <image class="icon" src="../img/detail/temperature.svg"></image>
+            </view>
+          </view>
+        </view>
+        <view class="item">
+          <view class="wrap">
+            <view class="column-l">
+              <view class="hd">相对湿度</view>
+              <view class="bd">{{weather.observe.humidity}}%</view>
+            </view>
+            <view class="column-r">
+              <image class="icon" src="../img/detail/humidity.svg"></image>
+            </view>
+          </view>
+        </view>
+        <view class="item">
+          <view class="wrap">
+            <view class="column-l">
+              <view class="hd">气压</view>
+              <view class="bd">{{weather.observe.pressure}} Pa</view>
+            </view>
+            <view class="column-r">
+              <image class="icon" src="../img/detail/barometer.svg"></image>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class='botton'>实时天气数据来自腾讯天气</view>
+      <view class='botton'>null</view>
+    </view>
+</view>
+</view>
+
   </van-tab>
   <van-tab title="城市一天气">
-    <van-cell title="城市名称" value="{{city}}" size="large" />
-<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+   <view class='backgroundView'>
+      <view class='content'>
+        <view class='topView'>
+          <image src='../img/{{m1.nowBackImage(weather.forecast_24h.weatherDay_0.day_weather_code, weather.forecast_24h.weatherDay_0.max_degree)}}.png' class='topImg' mode='aspectFill'></image>
+          <view class='location' bindtap='chooseLocation'>
+            <view>
+              <image class='locationImg' src='../img/location.png' mode='aspectFit'></image>
+              <text >{{province}}{{city}}</text>
+            </view>
+          </view>
+          <view class='nowTemp'>{{weather.forecast_24h.weatherDay_0.max_defree}}</view>
+          <view class='nowWind'>{{weather.forecast_24h.weatherDay_0.day_wind_direction}}</view>
+          <view class='air_now'>天气状况:{{weather.air.aqi_name}}</view>
+          <view class='week'>{{time.YY}}-{{time.MM}}-{{time.DD}}</view>
+  
+          <view class='tips1'>{{weather.tips.tipsDetail.tips_0}}</view>
+          <view class='tips2'>{{weather.tips.tipsDetail.tips_1}}</view>
+          
+        </view>
+        <scroll-view class='hourly' scroll-x="true">
+          <block wx:for="{{weather.forecast_24h}}" wx:key="unique" style="display: block;">
+            <view class='oneHourly'>
+              <view class='oneHourlyFlex'>
+                <view class='hourlyDate'>{{m1.getDailyDate(index,item.time)}}</view> 
+                <image class='hourlyImg' src='http://mat1.gtimg.com/pingjs/ext2020/weather/pc/icon/weather/day/{{item.day_weather_code}}.png' mode='aspectFit'></image>
+                <view class='hourlyTmp'>{{item.min_degree}}~{{item.max_degree}}°C</view>
+                <view class='hourlyWind'>
+                  <image src='../img/{{m1.windDirection(item.day_wind_direction)}}.png' mode='aspectFit'></image>
+                  <text>{{item.day_wind_direction}}</text>
+                </view>
+              </view>
+            </view>
+          </block>
+        </scroll-view>
+        <view class='dailyForecast'>
+          <block wx:for="{{dailyForecast}}" wx:key="unique" style="display: block;">
+            <view class='daily' style="flex-direction:row;">
+  
+              <view class='dailyDate'>{{m1.getDailyDate(index,item.date)}}</view> 
+              <image class='dailyImg' src='../img/{{item.cond_code_d}}.png' mode='aspectFit'></image> 
+              <view class='dailyCond'>{{item.cond_txt_d}}</view>
+              <view class='dailyTmp'>{{item.tmp_min}}°~{{item.tmp_max}}°</view>
+            </view>
+          </block>
+        </view>
+        <!--穿衣提示 -->
+        <view class='lifeStyle'>
+          <view class='life'>
+            <image class='lifeImg' src='../img/cold.png' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.cold.info}}感冒</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/cloth.png' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.drying.info}}中暑</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/car.png' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.carwash.info}}洗车</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/umbrella.png' mode='aspectFit'></image>
+            <view class='lifeText'>紫外线{{weather.index.ultraviolet.info}}</view>
+          </view>
+        </view>
+        <view class='lifeStyle_2'>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/air.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.allergy.info}}过敏</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/comf.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.drying.info}}{{weather.index.drying.name}}</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/cw.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.sunglasses.info}}{{weather.index.sunglasses.name}}</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/drsg.svg' mode='aspectFit'></image>
+            <view class='lifeText'>紫外线{{weather.index.comfort.info}}{{weather.index.comfort.name}}</view>
+          </view>
+        </view>
+        <view class='lifeStyle_3'>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/flu.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.allergy.info}}{{weather.index.allergy.name}}</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/sport.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.sports.info}}{{weather.index.sports.name}}</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/trav.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.traffic.info}}{{weather.index.traffic.name}}</view>
+          </view>
+          <view class='life'>
+            <image class='lifeImg' src='../img/life/uv.svg' mode='aspectFit'></image>
+            <view class='lifeText'>{{weather.index.mood.info}}{{weather.index.mood.name}}</view>
+          </view>
+        </view>
+  
+  
+      <view class="details">
+        <view class="title">详情</view>
+        <view class="list">
+          <view class="item">
+            <view class="wrap">
+              <view class="column-l">
+                <view class="hd">风</view>
+                <view class="bd">{{weather.observe.wind_power}}级 </view>
+              </view>
+              <view class="column-r">
+                <image class="icon" src="../img/detail/windy.svg"></image>
+              </view>
+            </view>
+          </view>
+          <view class="item">
+            <view class="wrap">
+              <view class="column-l">
+                <view class="hd">体感温度</view>
+                <view class="bd">{{weather.observe.degree}}˚</view>
+              </view>
+              <view class="column-r">
+                <image class="icon" src="../img/detail/temperature.svg"></image>
+              </view>
+            </view>
+          </view>
+          <view class="item">
+            <view class="wrap">
+              <view class="column-l">
+                <view class="hd">相对湿度</view>
+                <view class="bd">{{weather.observe.humidity}}%</view>
+              </view>
+              <view class="column-r">
+                <image class="icon" src="../img/detail/humidity.svg"></image>
+              </view>
+            </view>
+          </view>
+          <view class="item">
+            <view class="wrap">
+              <view class="column-l">
+                <view class="hd">气压</view>
+                <view class="bd">{{weather.observe.pressure}} Pa</view>
+              </view>
+              <view class="column-r">
+                <image class="icon" src="../img/detail/barometer.svg"></image>
+              </view>
+            </view>
+          </view>
+        </view>
+        <view class='botton'>实时天气数据来自腾讯天气</view>
+        <view class='botton'>null</view>
+      </view>
+  </view>
+  </view>
+  
 </van-tab>
-  <van-tab title="城市二天气">  <van-cell title="城市名称" value="{{city}}" size="large" />
-<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+  <van-tab title="城市二天气">   <view class='backgroundView'>
+   <view class='content'>
+     <view class='topView'>
+       <image src='../img/{{m1.nowBackImage(weather.forecast_24h.weatherDay_0.day_weather_code, weather.forecast_24h.weatherDay_0.max_degree)}}.png' class='topImg' mode='aspectFill'></image>
+       <view class='location' bindtap='chooseLocation'>
+         <view>
+           <image class='locationImg' src='../img/location.png' mode='aspectFit'></image>
+           <text >{{province}}{{city}}</text>
+         </view>
+       </view>
+       <view class='nowTemp'>{{weather.forecast_24h.weatherDay_0.max_defree}}</view>
+       <view class='nowWind'>{{weather.forecast_24h.weatherDay_0.day_wind_direction}}</view>
+       <view class='air_now'>天气状况:{{weather.air.aqi_name}}</view>
+       <view class='week'>{{time.YY}}-{{time.MM}}-{{time.DD}}</view>
+
+       <view class='tips1'>{{weather.tips.tipsDetail.tips_0}}</view>
+       <view class='tips2'>{{weather.tips.tipsDetail.tips_1}}</view>
+       
+     </view>
+     <scroll-view class='hourly' scroll-x="true">
+       <block wx:for="{{weather.forecast_24h}}" wx:key="unique" style="display: block;">
+         <view class='oneHourly'>
+           <view class='oneHourlyFlex'>
+             <view class='hourlyDate'>{{m1.getDailyDate(index,item.time)}}</view> 
+             <image class='hourlyImg' src='http://mat1.gtimg.com/pingjs/ext2020/weather/pc/icon/weather/day/{{item.day_weather_code}}.png' mode='aspectFit'></image>
+             <view class='hourlyTmp'>{{item.min_degree}}~{{item.max_degree}}°C</view>
+             <view class='hourlyWind'>
+               <image src='../img/{{m1.windDirection(item.day_wind_direction)}}.png' mode='aspectFit'></image>
+               <text>{{item.day_wind_direction}}</text>
+             </view>
+           </view>
+         </view>
+       </block>
+     </scroll-view>
+     <view class='dailyForecast'>
+       <block wx:for="{{dailyForecast}}" wx:key="unique" style="display: block;">
+         <view class='daily' style="flex-direction:row;">
+
+           <view class='dailyDate'>{{m1.getDailyDate(index,item.date)}}</view> 
+           <image class='dailyImg' src='../img/{{item.cond_code_d}}.png' mode='aspectFit'></image> 
+           <view class='dailyCond'>{{item.cond_txt_d}}</view>
+           <view class='dailyTmp'>{{item.tmp_min}}°~{{item.tmp_max}}°</view>
+         </view>
+       </block>
+     </view>
+     <!--穿衣提示 -->
+     <view class='lifeStyle'>
+       <view class='life'>
+         <image class='lifeImg' src='../img/cold.png' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.cold.info}}感冒</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/cloth.png' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.drying.info}}中暑</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/car.png' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.carwash.info}}洗车</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/umbrella.png' mode='aspectFit'></image>
+         <view class='lifeText'>紫外线{{weather.index.ultraviolet.info}}</view>
+       </view>
+     </view>
+     <view class='lifeStyle_2'>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/air.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.allergy.info}}过敏</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/comf.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.drying.info}}{{weather.index.drying.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/cw.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.sunglasses.info}}{{weather.index.sunglasses.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/drsg.svg' mode='aspectFit'></image>
+         <view class='lifeText'>紫外线{{weather.index.comfort.info}}{{weather.index.comfort.name}}</view>
+       </view>
+     </view>
+     <view class='lifeStyle_3'>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/flu.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.allergy.info}}{{weather.index.allergy.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/sport.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.sports.info}}{{weather.index.sports.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/trav.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.traffic.info}}{{weather.index.traffic.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/uv.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.mood.info}}{{weather.index.mood.name}}</view>
+       </view>
+     </view>
+
+
+   <view class="details">
+     <view class="title">详情</view>
+     <view class="list">
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">风</view>
+             <view class="bd">{{weather.observe.wind_power}}级 </view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/windy.svg"></image>
+           </view>
+         </view>
+       </view>
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">体感温度</view>
+             <view class="bd">{{weather.observe.degree}}˚</view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/temperature.svg"></image>
+           </view>
+         </view>
+       </view>
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">相对湿度</view>
+             <view class="bd">{{weather.observe.humidity}}%</view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/humidity.svg"></image>
+           </view>
+         </view>
+       </view>
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">气压</view>
+             <view class="bd">{{weather.observe.pressure}} Pa</view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/barometer.svg"></image>
+           </view>
+         </view>
+       </view>
+     </view>
+     <view class='botton'>实时天气数据来自腾讯天气</view>
+     <view class='botton'>null</view>
+   </view>
+</view>
+</view>
+
 </van-tab>
-  <van-tab title="城市三天气">  <van-cell title="城市名称" value="{{city}}" size="large" />
-<van-cell title="天气状况" value="{{weather.forecast_24h.weatherDay_0.day_weather}}" size="large" />
+  <van-tab title="城市三天气">  <view class='backgroundView'>
+   <view class='content'>
+     <view class='topView'>
+       <image src='../img/{{m1.nowBackImage(weather.forecast_24h.weatherDay_0.day_weather_code, weather.forecast_24h.weatherDay_0.max_degree)}}.png' class='topImg' mode='aspectFill'></image>
+       <view class='location' bindtap='chooseLocation'>
+         <view>
+           <image class='locationImg' src='../img/location.png' mode='aspectFit'></image>
+           <text >{{province}}{{city}}</text>
+         </view>
+       </view>
+       <view class='nowTemp'>{{weather.forecast_24h.weatherDay_0.max_defree}}</view>
+       <view class='nowWind'>{{weather.forecast_24h.weatherDay_0.day_wind_direction}}</view>
+       <view class='air_now'>天气状况:{{weather.air.aqi_name}}</view>
+       <view class='week'>{{time.YY}}-{{time.MM}}-{{time.DD}}</view>
+
+       <view class='tips1'>{{weather.tips.tipsDetail.tips_0}}</view>
+       <view class='tips2'>{{weather.tips.tipsDetail.tips_1}}</view>
+       
+     </view>
+     <scroll-view class='hourly' scroll-x="true">
+       <block wx:for="{{weather.forecast_24h}}" wx:key="unique" style="display: block;">
+         <view class='oneHourly'>
+           <view class='oneHourlyFlex'>
+             <view class='hourlyDate'>{{m1.getDailyDate(index,item.time)}}</view> 
+             <image class='hourlyImg' src='http://mat1.gtimg.com/pingjs/ext2020/weather/pc/icon/weather/day/{{item.day_weather_code}}.png' mode='aspectFit'></image>
+             <view class='hourlyTmp'>{{item.min_degree}}~{{item.max_degree}}°C</view>
+             <view class='hourlyWind'>
+               <image src='../img/{{m1.windDirection(item.day_wind_direction)}}.png' mode='aspectFit'></image>
+               <text>{{item.day_wind_direction}}</text>
+             </view>
+           </view>
+         </view>
+       </block>
+     </scroll-view>
+     <view class='dailyForecast'>
+       <block wx:for="{{dailyForecast}}" wx:key="unique" style="display: block;">
+         <view class='daily' style="flex-direction:row;">
+
+           <view class='dailyDate'>{{m1.getDailyDate(index,item.date)}}</view> 
+           <image class='dailyImg' src='../img/{{item.cond_code_d}}.png' mode='aspectFit'></image> 
+           <view class='dailyCond'>{{item.cond_txt_d}}</view>
+           <view class='dailyTmp'>{{item.tmp_min}}°~{{item.tmp_max}}°</view>
+         </view>
+       </block>
+     </view>
+     <!--穿衣提示 -->
+     <view class='lifeStyle'>
+       <view class='life'>
+         <image class='lifeImg' src='../img/cold.png' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.cold.info}}感冒</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/cloth.png' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.drying.info}}中暑</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/car.png' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.carwash.info}}洗车</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/umbrella.png' mode='aspectFit'></image>
+         <view class='lifeText'>紫外线{{weather.index.ultraviolet.info}}</view>
+       </view>
+     </view>
+     <view class='lifeStyle_2'>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/air.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.allergy.info}}过敏</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/comf.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.drying.info}}{{weather.index.drying.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/cw.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.sunglasses.info}}{{weather.index.sunglasses.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/drsg.svg' mode='aspectFit'></image>
+         <view class='lifeText'>紫外线{{weather.index.comfort.info}}{{weather.index.comfort.name}}</view>
+       </view>
+     </view>
+     <view class='lifeStyle_3'>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/flu.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.allergy.info}}{{weather.index.allergy.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/sport.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.sports.info}}{{weather.index.sports.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/trav.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.traffic.info}}{{weather.index.traffic.name}}</view>
+       </view>
+       <view class='life'>
+         <image class='lifeImg' src='../img/life/uv.svg' mode='aspectFit'></image>
+         <view class='lifeText'>{{weather.index.mood.info}}{{weather.index.mood.name}}</view>
+       </view>
+     </view>
+
+
+   <view class="details">
+     <view class="title">详情</view>
+     <view class="list">
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">风</view>
+             <view class="bd">{{weather.observe.wind_power}}级 </view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/windy.svg"></image>
+           </view>
+         </view>
+       </view>
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">体感温度</view>
+             <view class="bd">{{weather.observe.degree}}˚</view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/temperature.svg"></image>
+           </view>
+         </view>
+       </view>
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">相对湿度</view>
+             <view class="bd">{{weather.observe.humidity}}%</view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/humidity.svg"></image>
+           </view>
+         </view>
+       </view>
+       <view class="item">
+         <view class="wrap">
+           <view class="column-l">
+             <view class="hd">气压</view>
+             <view class="bd">{{weather.observe.pressure}} Pa</view>
+           </view>
+           <view class="column-r">
+             <image class="icon" src="../img/detail/barometer.svg"></image>
+           </view>
+         </view>
+       </view>
+     </view>
+     <view class='botton'>实时天气数据来自腾讯天气</view>
+     <view class='botton'>null</view>
+   </view>
+</view>
+</view>
+
 </van-tab>
 </van-tabs>
