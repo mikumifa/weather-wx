@@ -14,6 +14,40 @@ Page({
     var DD = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
     return YY + MM + DD;
   },
+  Email(e){
+   var that=this
+   
+   let params={
+      'province': app.globalData.nowCity.province,
+      'country': app.globalData.nowCity.country,
+      'city': app.globalData.nowCity.city,
+      'wechatOpenid':that.data.openid,
+      'email':e.detail
+   }
+   console.log(params.email)
+   wx.request({
+      url: app.sqlUrl +"/SetEmail/"+params.wechatOpenid+"/"+params.email+"/"+params.province+"/"+params.city+"/"+params.country,
+      method: "POST",
+      success() {
+            wx.request({
+              url: app.sqlUrl +"/GetUserSignInfoByopenId/" +that.data.openid,
+              method: "GET",
+              success(re2) {
+                console.log(re2)
+                that.setData({
+                  'userInfo.continuitySignDays': re2.data.continuitySignDays,
+                  'userInfo.lastSignTime': re2.data.lastSignTime,
+                  'userInfo.province': re2.data.province,
+                  'userInfo.country': re2.data.country,
+                  'userInfo.city': re2.data.city,
+                  'userInfo.email': re2.data.email
+                })
+              }
+            })
+            //
+      }
+    })
+  },
   Login(e){
     var that=this
     if(that.data.userInfo.lastSignTime.substring(0,10)==this.formatDate(new Date))
@@ -30,10 +64,13 @@ Page({
                   url: app.sqlUrl +"/GetUserSignInfoByopenId/" +that.data.openid,
                   method: "GET",
                   success(re2) {
-                    console.log(re2)
                     that.setData({
                       'userInfo.continuitySignDays': re2.data.continuitySignDays,
-                      'userInfo.lastSignTime': re2.data.lastSignTime
+                      'userInfo.lastSignTime': re2.data.lastSignTime,
+                      'userInfo.province': re2.data.province,
+                      'userInfo.country': re2.data.country,
+                      'userInfo.city': re2.data.city,
+                      'userInfo.email': re2.data.email
                     })
                   }
                 })
@@ -66,7 +103,6 @@ Page({
             userInfo: res.userInfo,
             hasUserInfo: true
           })
-          console.log("!!!!!!!!!!!!!")
           var that =this;
           wx.login({
             success: function (res) {
@@ -84,14 +120,15 @@ Page({
                     url: app.sqlUrl +"/GetUserSignInfoByopenId/" +that.data.openid,
                     method: "GET",
                     success(re2) {
-                      console.log(re2)
+                     console.log(re2)
                       that.setData({
                         'userInfo.continuitySignDays': re2.data.continuitySignDays,
-                        'userInfo.lastSignTime': re2.data.lastSignTime
-                        //continuitySignDays: re2.data.continuitySignDays,
-                        //lastSignTime: re2.data.lastSignTime
+                        'userInfo.lastSignTime': re2.data.lastSignTime,
+                        'userInfo.province': re2.data.province,
+                        'userInfo.country': re2.data.country,
+                        'userInfo.city': re2.data.city,
+                        'userInfo.email': re2.data.email
                       })
-                      console.log(that.data)
                     }
     
                   })

@@ -1,6 +1,6 @@
 App({
   "serverUrl": "http://124.220.80.204:12346",
-  "sqlUrl": "http://124.220.80.204:12345",
+  "sqlUrl": "http://localhost:12345",
   globalData: {
     city_0: {
       province:"江苏省",
